@@ -19,7 +19,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run clean && rolldown -c && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "bun run clean && rolldown -c && tsc --declaration --emitDeclarationOnly --outDir dist",
     "clean": "rm -rf dist",
     "dev": "rolldown -c --watch",
     "test": "vitest run",
@@ -27,7 +27,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "prepublishOnly": "npm run test && npm run build",
+    "prepublishOnly": "bun run test && bun run build",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\""
   },

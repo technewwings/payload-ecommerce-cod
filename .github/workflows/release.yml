@@ -35,6 +35,12 @@ jobs:
         with:
           bun-version: 1.3.6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
@@ -52,9 +58,9 @@ jobs:
       - name: Bump version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
-            bun run npm version ${{ github.event.inputs.version }} -m "chore: release v%s"
+            npm version ${{ github.event.inputs.version }} -m "chore: release v%s"
           else
-            bun run npm version ${{ github.event.inputs.release_type }} -m "chore: release v%s"
+            npm version ${{ github.event.inputs.release_type }} -m "chore: release v%s"
           fi
 
       - name: Push changes and tags
