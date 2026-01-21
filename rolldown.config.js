@@ -1,5 +1,4 @@
 import { defineConfig } from 'rolldown';
-import nodeResolve from '@rolldown/node-resolve';
 
 export default defineConfig({
   input: 'src/index.ts',
@@ -14,9 +13,6 @@ export default defineConfig({
       entryFileNames: '[name].mjs',
       dir: 'dist'
     }
-  ],
-  plugins: [
-    nodeResolve()
   ],
   external: ['payload'],
   treeshake: true

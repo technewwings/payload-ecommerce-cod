@@ -4,7 +4,7 @@ import type {
   PaymentAdapterArgs,
   PaymentAdapterClient,
   PaymentAdapterClientArgs,
-} from '@payloadcms/plugin-ecommerce/types'
+} from '@payloadcms/plugin-ecommerce/dist/types'
 
 import { confirmOrder } from './confirmOrder.js'
 import { initiatePayment } from './initiatePayment.js'

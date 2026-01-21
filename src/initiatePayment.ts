@@ -1,4 +1,4 @@
-import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/types'
+import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/dist/types'
 import type { CODAdapterArgs, InitiatePaymentReturnType } from './index.js'
 
 type Props = {
