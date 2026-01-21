@@ -1,4 +1,4 @@
-import type { Field, GroupField, PayloadRequest } from 'payload'
+import type { Field, GroupField } from 'payload'
 import type {
   PaymentAdapter,
   PaymentAdapterArgs,
@@ -149,9 +149,7 @@ export const codAdapter: (props: CODAdapterArgs) => PaymentAdapter = (props) => 
 
 export type CODAdapterClientArgs = PaymentAdapterClientArgs
 
-export const codAdapterClient: (props: CODAdapterClientArgs) => PaymentAdapterClient = (
-  props,
-) => {
+export const codAdapterClient: (props: CODAdapterClientArgs) => PaymentAdapterClient = (props) => {
   return {
     name: 'cod',
     confirmOrder: true,

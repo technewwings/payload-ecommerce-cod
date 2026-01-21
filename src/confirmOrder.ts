@@ -1,5 +1,5 @@
 import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/dist/types'
-import type { CODAdapterArgs, ConfirmOrderReturnType } from './index.js'
+import type { ConfirmOrderReturnType } from './index.js'
 
 type Props = {
   allowedRegions?: string[]
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confirmOrder'] =
-  (props) =>
+  (_props) =>
   async ({
     cartsSlug = 'carts',
     data,
@@ -95,7 +95,7 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
           order: order.id,
           status: 'succeeded',
           cod: {
-            ...((transaction as any).cod || {}),
+            ...((transaction as Record<string, unknown>).cod || {}),
             validationStatus: 'validated',
           },
         },

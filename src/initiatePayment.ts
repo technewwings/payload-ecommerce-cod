@@ -1,5 +1,5 @@
 import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/dist/types'
-import type { CODAdapterArgs, InitiatePaymentReturnType } from './index.js'
+import type { InitiatePaymentReturnType } from './index.js'
 
 type Props = {
   allowedRegions?: string[]
@@ -69,7 +69,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
 
     // Validate allowed regions
     if (allowedRegions && shippingAddressFromData) {
-      const shippingCountry = (shippingAddressFromData as any)?.country
+      const shippingCountry = (shippingAddressFromData as Record<string, unknown>)?.country
       if (shippingCountry && !allowedRegions.includes(shippingCountry)) {
         throw new Error(
           `COD is not available in ${shippingCountry}. Available regions: ${allowedRegions.join(', ')}`,
@@ -112,7 +112,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
       const orderID = `COD-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
 
       // Create a transaction for the COD payment
-      const transaction = await payload.create({
+      const _transaction = await payload.create({
         collection: transactionsSlug,
         data: {
           ...(req.user ? { customer: req.user.id } : { customerEmail }),
@@ -142,6 +142,8 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
     } catch (error) {
       payload.logger.error(error, 'Error initiating COD payment')
 
-      throw new Error(error instanceof Error ? error.message : 'Unknown error initiating COD payment')
+      throw new Error(
+        error instanceof Error ? error.message : 'Unknown error initiating COD payment',
+      )
     }
   }
