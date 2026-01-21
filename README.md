@@ -121,6 +121,8 @@ The adapter uses Payload's built-in ecommerce endpoints:
 
 ## Example: Complete Checkout Flow
 
+### Basic Implementation
+
 ```typescript
 import { useEcommerce } from '@payloadcms/plugin-ecommerce/client'
 
@@ -129,16 +131,16 @@ function Checkout() {
 
   const handleCheckout = async () => {
     try {
-      // Step 1: Initiate payment
+      // Step 1: Initiate COD payment
       const initResult = await initiatePayment('cod', {
         additionalData: {
-          // Any additional data needed
+          // Additional data if needed
         },
       })
 
       console.log('COD Order ID:', initResult.orderID)
 
-      // Step 2: Confirm order
+      // Step 2: Confirm order to complete purchase
       const confirmResult = await confirmOrder('cod', {
         additionalData: {
           orderID: initResult.orderID,
@@ -155,6 +157,135 @@ function Checkout() {
     <button onClick={handleCheckout}>
       Complete Order (COD)
     </button>
+  )
+}
+```
+
+### Advanced Implementation with Hooks
+
+For more control over the checkout flow, use the ecommerce hooks:
+
+```typescript
+import { useCart, useAddresses, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
+
+function AdvancedCheckout() {
+  const cart = useCart()
+  const { shippingAddress, billingAddress } = useAddresses()
+  const { initiatePayment, confirmOrder } = usePayments()
+
+  const handleCheckout = async () => {
+    try {
+      // Validate cart
+      if (!cart || !cart.items || cart.items.length === 0) {
+        throw new Error('Cart is empty')
+      }
+
+      // Validate addresses
+      if (!shippingAddress) {
+        throw new Error('Shipping address is required')
+      }
+
+      // Step 1: Initiate COD payment
+      const initResult = await initiatePayment('cod', {
+        cart,
+        shippingAddress,
+        billingAddress: billingAddress || shippingAddress,
+      })
+
+      console.log('Order initiated:', {
+        orderID: initResult.orderID,
+        serviceCharge: initResult.serviceCharge,
+      })
+
+      // Step 2: Confirm order
+      const confirmResult = await confirmOrder('cod', {
+        orderID: initResult.orderID,
+      })
+
+      console.log('Order confirmed:', {
+        orderID: confirmResult.orderID,
+        transactionID: confirmResult.transactionID,
+      })
+
+      // Order complete, redirect to success page
+      window.location.href = `/order/${confirmResult.orderID}`
+    } catch (error) {
+      console.error('Checkout failed:', error.message)
+    }
+  }
+
+  return (
+    <div>
+      <h2>Order Summary</h2>
+      <p>Total: ${(cart?.subtotal / 100).toFixed(2)}</p>
+      <button onClick={handleCheckout} disabled={!cart?.items?.length}>
+        Place Order (Cash on Delivery)
+      </button>
+    </div>
+  )
+}
+```
+
+### With Form Validation
+
+```typescript
+import { useState } from 'react'
+import { useCart, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
+
+function CheckoutWithValidation() {
+  const cart = useCart()
+  const { initiatePayment, confirmOrder } = usePayments()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleCheckout = async (formData: FormData) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Step 1: Initiate payment
+      const initResult = await initiatePayment('cod', {
+        additionalData: {
+          notes: formData.get('notes'),
+          preferredDeliveryDate: formData.get('deliveryDate'),
+        },
+      })
+
+      // Step 2: Confirm order
+      const confirmResult = await confirmOrder('cod', {
+        orderID: initResult.orderID,
+      })
+
+      // Success - clear cart and redirect
+      console.log('Order placed successfully:', confirmResult.orderID)
+      return confirmResult.orderID
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Checkout failed'
+      setError(message)
+      console.error('Checkout error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault()
+      handleCheckout(new FormData(e.currentTarget))
+    }}>
+      <div>
+        <label>Special Instructions (optional)</label>
+        <textarea name="notes" placeholder="Add delivery instructions..." />
+      </div>
+      <div>
+        <label>Preferred Delivery Date</label>
+        <input type="date" name="deliveryDate" />
+      </div>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button type="submit" disabled={loading || !cart?.items?.length}>
+        {loading ? 'Processing...' : 'Place Order'}
+      </button>
+    </form>
   )
 }
 ```
@@ -262,6 +393,68 @@ This adapter follows the exact same structure as Payload's official Stripe adapt
 - ✅ Uses GroupField for admin UI integration
 - ✅ Supports transaction tracking
 - ✅ Compatible with Payload's ecommerce hooks
+
+## Implementation Verification
+
+### Server-side Implementation ✅
+
+The adapter correctly implements the `PaymentAdapter` interface with:
+
+1. **initiatePayment**: Creates a transaction and validates:
+   - Currency support (if `supportedCurrencies` is configured)
+   - Order amount limits (minimum and maximum)
+   - Regional availability (if `allowedRegions` is configured)
+   - Calculates service charges (percentage and/or fixed)
+   - Generates unique COD order ID
+
+2. **confirmOrder**: Completes the payment flow:
+   - Verifies existing transaction by COD order ID
+   - Creates order with cart items and addresses
+   - Updates cart as purchased
+   - Updates transaction status to 'succeeded'
+   - Returns order and transaction IDs
+
+3. **Transaction Fields**:
+   - `cod.orderID`: Unique COD identifier
+   - `cod.validationStatus`: Order validation state
+   - `cod.deliveryStatus`: Delivery tracking
+   - `cod.paymentCollected`: Payment confirmation
+   - `cod.collectionDate`: Payment date
+
+### Client-side Implementation ✅
+
+The adapter provides a client-compatible implementation with:
+
+1. **codAdapterClient**: Exposes payment method capabilities
+   - `name`: 'cod' (payment method identifier)
+   - `label`: Display name (customizable)
+   - `initiatePayment`: Boolean flag indicating support
+   - `confirmOrder`: Boolean flag indicating support
+
+2. **Hook Compatibility**: Works with Payload ecommerce hooks
+   - `usePayments()`: Initiates and confirms payments
+   - `useCart()`: Access cart data and amounts
+   - `useAddresses()`: Access shipping/billing addresses
+   - `useEcommerce()`: Generic ecommerce context
+
+### Type Safety ✅
+
+All exports are properly typed:
+
+```typescript
+export type CODAdapterArgs = { /* configuration options */ }
+export type CODAdapterClientArgs = PaymentAdapterClientArgs
+export type InitiatePaymentReturnType = {
+  message: string
+  orderID: string
+  serviceCharge?: number
+}
+export type ConfirmOrderReturnType = {
+  message: string
+  orderID: string
+  transactionID: string
+}
+```
 
 ## Contributing
 
