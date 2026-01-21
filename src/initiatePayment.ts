@@ -69,7 +69,9 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
 
     // Validate allowed regions
     if (allowedRegions && shippingAddressFromData) {
-      const shippingCountry = (shippingAddressFromData as Record<string, unknown>)?.country as string | undefined
+      const shippingCountry = (shippingAddressFromData as Record<string, unknown>)?.country as
+        | string
+        | undefined
       if (shippingCountry && !allowedRegions.includes(shippingCountry)) {
         throw new Error(
           `COD is not available in ${shippingCountry}. Available regions: ${allowedRegions.join(', ')}`,
