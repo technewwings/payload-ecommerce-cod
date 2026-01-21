@@ -1,0 +1,26 @@
+# Source files
+src
+
+# Config files
+tsconfig.json
+rolldown.config.js
+vitest.config.ts
+
+# Development
+.git
+.gitignore
+.gitattributes
+*.md
+!README.md
+
+# Testing
+tests
+__tests__
+*.test.ts
+*.spec.ts
+
+# CI/CD
+.github
+
+# Scripts
+scripts

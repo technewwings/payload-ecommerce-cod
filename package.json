@@ -1,0 +1,76 @@
+{
+  "name": "@wtree/payload-ecommerce-cod",
+  "version": "1.0.0",
+  "description": "Cash on Delivery (COD) payment adapter for Payload CMS Ecommerce Plugin",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run clean && rolldown -c && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "clean": "rm -rf dist",
+    "dev": "rolldown -c --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "prepublishOnly": "npm run test && npm run build",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
+  },
+  "keywords": [
+    "payload",
+    "payloadcms",
+    "payload-cms",
+    "ecommerce",
+    "cod",
+    "cash-on-delivery",
+    "payment",
+    "payment-gateway",
+    "adapter",
+    "plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/technewwings/payload-ecommerce-cod.git"
+  },
+  "bugs": {
+    "url": "https://github.com/technewwings/payload-ecommerce-cod/issues"
+  },
+  "homepage": "https://github.com/technewwings/payload-ecommerce-cod#readme",
+  "author": "wtree",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@rolldown/node-resolve": "^0.1.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "rolldown": "^0.13.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "payload": "^3.0.0"
+  },
+  "dependencies": {}
+}
